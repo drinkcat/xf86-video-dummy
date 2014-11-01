@@ -477,8 +477,6 @@ DUMMYPreInit(ScrnInfoPtr pScrn, int flags)
 
     output = xf86OutputCreate (pScrn, &dummy_output_funcs, "default");
 
-    output->mm_width = 233;
-    output->mm_height = 233;
     output->possible_crtcs = 0x7f;
 
     xf86InitialConfiguration(pScrn, TRUE);
@@ -503,6 +501,11 @@ DUMMYPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* If monitor resolution is set on the command line, use it */
     xf86SetDpi(pScrn, 0, 0);
+
+    output->mm_width = pScrn->xDpi > 0 ?
+        (pScrn->virtualX * 254 / (10*pScrn->xDpi)) : 0;
+    output->mm_height = pScrn->yDpi > 0 ?
+        (pScrn->virtualY * 254 / (10*pScrn->yDpi)) : 0;
 
     if (xf86LoadSubModule(pScrn, "fb") == NULL) {
 	RETURN;
@@ -738,8 +741,7 @@ Bool
 DUMMYSwitchMode(SWITCH_MODE_ARGS_DECL)
 {
     SCRN_INFO_PTR(arg);
-    return xf86SetSingleMode(pScrn, mode, RR_Rotate_0);
-//dummyModeInit(pScrn, mode);
+    return dummyModeInit(pScrn, mode);
 }
 
 /* Mandatory */
